@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string[]]$Models = @("deepseek-coder", "deepseek-r1", "codellama")
+    [string[]]$Models = @("deepseek-coder:6.7b", "deepseek-r1", "codellama")
 )
 
 $ErrorActionPreference = "Stop"

@@ -9,11 +9,14 @@
     "extensions/*"
   ],
   "scripts": {
+    "bootstrap": "powershell -ExecutionPolicy Bypass -File .\\scripts\\bootstrap-local.ps1",
+    "doctor": "powershell -ExecutionPolicy Bypass -File .\\scripts\\doctor-local.ps1",
     "dev:web": "npm --workspace @debugwise/web run dev",
     "dev:gateway": "npm --workspace @debugwise/gateway run dev",
+    "start:local": "powershell -ExecutionPolicy Bypass -File .\\scripts\\start-local.ps1 -Mode Native",
+    "stop:local": "powershell -ExecutionPolicy Bypass -File .\\scripts\\stop-local.ps1",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"
   }
 }
-

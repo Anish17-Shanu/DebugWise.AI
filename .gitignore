@@ -21,3 +21,4 @@ apps/web/src/generated
 services/gateway/dist
 extensions/vscode/out
 .run
+*.tsbuildinfo

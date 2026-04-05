@@ -1,8 +1,8 @@
 [CmdletBinding()]
 param(
-    [switch]$SkipModels,
-    [switch]$SkipDockerCheck,
-    [switch]$RequireOllama
+    [switch]$PullModels,
+    [switch]$RequireOllama,
+    [switch]$SkipBuild
 )
 
 $ErrorActionPreference = "Stop"
@@ -15,6 +15,19 @@ function Assert-Command {
     param([string]$Name)
     if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {
         throw "Required command '$Name' was not found in PATH."
+    }
+}
+
+function Get-CommandVersion {
+    param(
+        [string]$Command,
+        [string[]]$Arguments = @("--version")
+    )
+
+    try {
+        return (& $Command @Arguments 2>$null | Select-Object -First 1)
+    } catch {
+        return "unknown"
     }
 }
 
@@ -43,9 +56,10 @@ Write-Host "Bootstrapping DebugWise.AI locally..." -ForegroundColor Cyan
 Assert-Command node
 Assert-Command npm
 Assert-Command python
-if (-not $SkipDockerCheck) {
-    Assert-Command docker
-}
+
+Write-Host ("Node:   " + (Get-CommandVersion -Command "node")) -ForegroundColor DarkGray
+Write-Host ("npm:    " + (Get-CommandVersion -Command "npm")) -ForegroundColor DarkGray
+Write-Host ("Python: " + (Get-CommandVersion -Command "python")) -ForegroundColor DarkGray
 
 $ollamaCommand = Resolve-OllamaCommand
 $ollamaInstalled = $null -ne $ollamaCommand
@@ -61,7 +75,11 @@ if (-not (Test-Path (Join-Path $root ".env"))) {
 Push-Location $root
 try {
     Write-Host "Installing Node workspace dependencies..." -ForegroundColor Yellow
-    npm install
+    if (Test-Path (Join-Path $root "package-lock.json")) {
+        npm ci
+    } else {
+        npm install
+    }
 
     if (-not (Test-Path $venvPath)) {
         Write-Host "Creating Python virtual environment..." -ForegroundColor Yellow
@@ -72,24 +90,25 @@ try {
     & $pythonExe -m pip install --upgrade pip
     & $pipExe install -r services\analysis\requirements.txt
 
-    if (-not $SkipModels -and $ollamaInstalled) {
-        Write-Host "Checking Ollama models..." -ForegroundColor Yellow
-        $models = (& $ollamaCommand list | Out-String)
-        foreach ($model in @("deepseek-coder", "deepseek-r1", "codellama")) {
-            if ($models -notmatch [regex]::Escape($model)) {
-                Write-Host "Pulling missing Ollama model: $model" -ForegroundColor Yellow
-                & $ollamaCommand pull $model
-            }
-        }
+    if ($PullModels -and $ollamaInstalled) {
+        Write-Host "Pulling recommended Ollama models..." -ForegroundColor Yellow
+        & (Join-Path $PSScriptRoot "pull-models.ps1")
+    } elseif ($PullModels -and -not $ollamaInstalled) {
+        throw "The -PullModels option was used, but Ollama is not installed."
     } elseif (-not $ollamaInstalled) {
         Write-Host "Ollama is not installed. DebugWise.AI will run in deterministic fallback mode until Ollama is added." -ForegroundColor Yellow
+    } else {
+        Write-Host "Ollama detected. Model pulls are skipped by default for faster first run. Use -PullModels to fetch recommended models." -ForegroundColor DarkGray
     }
 
-    Write-Host "Running build verification..." -ForegroundColor Yellow
-    npm run build
-    & $pythonExe -m pytest services\analysis\tests
+    if (-not $SkipBuild) {
+        Write-Host "Running build verification..." -ForegroundColor Yellow
+        npm run build
+        & $pythonExe -m pytest services\analysis\tests
+    }
 
     Write-Host "Bootstrap completed." -ForegroundColor Green
+    Write-Host "Next step: powershell -ExecutionPolicy Bypass -File .\scripts\start-local.ps1 -Mode Native" -ForegroundColor Green
 }
 finally {
     Pop-Location

@@ -1,6 +1,6 @@
 # DebugWise.AI
 
-DebugWise.AI is an offline-first, AI-powered auto-debugging platform built as a modular monorepo. It ships with a React web IDE, a VS Code extension, a Node.js API gateway, and a Python analysis engine designed to run locally first, with optional online research enrichment when enabled.
+DebugWise.AI is an offline-first, AI-powered auto-debugging platform built as a modular monorepo. It ships with a React web IDE, a VS Code extension, a Node.js API gateway, and a Python analysis engine designed to run locally first, with optional online research enrichment when explicitly enabled.
 
 Author / Lead Developer: Anish Kumar
 
@@ -22,6 +22,21 @@ The current platform is hybrid by design:
 
 ## Local run
 
+### Fresh clone quick start
+
+1. Clone the repo.
+2. Install Node.js 22+ and Python 3.12+.
+3. Run the environment doctor:
+   - `npm run doctor`
+4. Bootstrap local dependencies:
+   - `npm run bootstrap`
+5. Start the product:
+   - `npm run start:local`
+6. Open `http://localhost:5173`
+
+If Ollama is missing, the assistant still works in deterministic fallback mode.
+If Docker is missing, code execution falls back to local runtimes automatically.
+
 ### Native mode
 
 1. Install Node.js 22+, Python 3.12+, and optionally Docker and Ollama.
@@ -36,9 +51,12 @@ The current platform is hybrid by design:
 
 If Docker is not running, DebugWise.AI automatically falls back to local execution for Python, JavaScript, TypeScript, and Java.
 If Ollama is not installed or not running, the platform still runs with deterministic diagnostics and fallback assistant behavior. Install Ollama later to enable full local reasoning and model-backed chat.
-The default coding model is `deepseek-coder:6.7b`.
+Bootstrap does not pull large models by default. The default coding model is `deepseek-coder:6.7b`.
 To pull the recommended local models after Ollama is installed:
 - `powershell -ExecutionPolicy Bypass -File .\scripts\pull-models.ps1`
+
+To bootstrap and pull models in one pass:
+- `powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap-local.ps1 -PullModels`
 
 ### Docker mode
 
@@ -62,7 +80,7 @@ To pull the recommended local models after Ollama is installed:
 - Execution through Docker isolation when available, with automatic local runtime fallback when Docker is unavailable.
 - Learning mode with weakness tracking, repeat-error insights, and coaching prompts.
 - Heatmap and replay-oriented telemetry for error hotspots.
-- Optional online reference enrichment from public Stack Exchange and GitHub APIs when the issue is non-trivial.
+- Optional online reference enrichment from public Stack Exchange and GitHub APIs when the issue is non-trivial. It is disabled by default in fresh clones to preserve local-first behavior.
 
 ## Deployment
 

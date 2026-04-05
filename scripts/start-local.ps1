@@ -86,11 +86,16 @@ function Wait-ForHttp {
     throw "$Name did not become healthy at $Url.`n$logOutput"
 }
 
+function Test-NodeModulesInstalled {
+    return Test-Path (Join-Path $root "node_modules")
+}
+
 Push-Location $root
 try {
     & (Join-Path $PSScriptRoot "stop-local.ps1") | Out-Null
 
-    if ($Bootstrap) {
+    $needsBootstrap = $Bootstrap -or -not (Test-NodeModulesInstalled) -or -not (Test-Path $venvPython)
+    if ($needsBootstrap) {
         & (Join-Path $PSScriptRoot "bootstrap-local.ps1")
     }
 
@@ -108,10 +113,6 @@ try {
 
     if (-not (Test-Path ".env")) {
         Copy-Item ".env.example" ".env"
-    }
-
-    if (-not (Test-Path $venvPython)) {
-        throw "Python virtual environment not found. Run scripts/bootstrap-local.ps1 first."
     }
 
     if (Test-Path $runDir) {
