@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: debugwise-config
+  namespace: debugwise
+data:
+  DEBUGWISE_PORT: "4000"
+  DEBUGWISE_ANALYSIS_URL: "http://debugwise-analysis:8000"
+  DEBUGWISE_OLLAMA_URL: "http://ollama.ollama.svc.cluster.local:11434"
+  DEBUGWISE_DEFAULT_CODE_MODEL: "deepseek-coder"
+  DEBUGWISE_DEFAULT_REASONING_MODEL: "deepseek-r1"
+  DEBUGWISE_FALLBACK_MODEL: "codellama"
+  DEBUGWISE_SANDBOX_IMAGE: "python:3.12-alpine"
+

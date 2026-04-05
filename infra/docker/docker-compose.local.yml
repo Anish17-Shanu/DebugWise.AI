@@ -1,0 +1,54 @@
+name: debugwise-local
+
+services:
+  analysis:
+    build:
+      context: ../..
+      dockerfile: services/analysis/Dockerfile
+    env_file:
+      - ../../.env
+    environment:
+      DEBUGWISE_OLLAMA_URL: http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+
+  gateway:
+    build:
+      context: ../..
+      dockerfile: services/gateway/Dockerfile
+    env_file:
+      - ../../.env
+    environment:
+      DEBUGWISE_OLLAMA_URL: http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "4000:4000"
+    depends_on:
+      analysis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_DEBUGWISE_GATEWAY_URL: http://localhost:4000/api
+        VITE_DEBUGWISE_WS_URL: ws://localhost:4000/ws
+    ports:
+      - "4173:8080"
+    depends_on:
+      gateway:
+        condition: service_healthy

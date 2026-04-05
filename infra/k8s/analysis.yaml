@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debugwise-analysis
+  namespace: debugwise
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: debugwise-analysis
+  template:
+    metadata:
+      labels:
+        app: debugwise-analysis
+    spec:
+      containers:
+        - name: analysis
+          image: debugwise-analysis:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: debugwise-config
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: debugwise-analysis
+  namespace: debugwise
+spec:
+  selector:
+    app: debugwise-analysis
+  ports:
+    - port: 8000
+      targetPort: 8000
+

@@ -1,0 +1,14 @@
+node_modules
+apps/web/dist
+services/gateway/dist
+extensions/vscode/out
+.venv
+__pycache__
+.pytest_cache
+*.pyc
+*.pyo
+*.pyd
+.git
+.github
+*.log
+

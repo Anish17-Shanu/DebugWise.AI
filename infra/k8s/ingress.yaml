@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: debugwise
+  namespace: debugwise
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: debugwise.local
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: debugwise-gateway
+                port:
+                  number: 4000
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: debugwise-gateway
+                port:
+                  number: 4000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: debugwise-web
+                port:
+                  number: 8080
+

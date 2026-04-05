@@ -1,0 +1,43 @@
+{
+  "name": "debugwise-ai-vscode",
+  "displayName": "DebugWise.AI",
+  "description": "Offline-first AI auto-debugging for VS Code.",
+  "version": "1.0.0",
+  "publisher": "debugwise",
+  "type": "module",
+  "engines": {
+    "vscode": "^1.98.0"
+  },
+  "categories": [
+    "Linters",
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:debugwise.openAssistant"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "debugwise.openAssistant",
+        "title": "DebugWise: Open Assistant"
+      },
+      {
+        "command": "debugwise.runAnalysis",
+        "title": "DebugWise: Analyze Current File"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@debugwise/contracts": "1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "@types/vscode": "^1.98.0",
+    "typescript": "^5.8.2"
+  }
+}

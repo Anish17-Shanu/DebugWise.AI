@@ -1,0 +1,19 @@
+{
+  "name": "debugwise-ai",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "services/gateway",
+    "packages/*",
+    "extensions/*"
+  ],
+  "scripts": {
+    "dev:web": "npm --workspace @debugwise/web run dev",
+    "dev:gateway": "npm --workspace @debugwise/gateway run dev",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  }
+}
+
