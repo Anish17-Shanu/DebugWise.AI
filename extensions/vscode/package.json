@@ -13,8 +13,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onStartupFinished",
-    "onCommand:debugwise.openAssistant"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
